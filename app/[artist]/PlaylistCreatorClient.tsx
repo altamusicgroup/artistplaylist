@@ -152,6 +152,13 @@ export default function PlaylistCreatorClient({ params }: { params: { artist: st
             />
           </div>
           
+          {/* Text Box */}
+          <div className="max-w-md mx-auto p-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
+            <p className="text-gray-800 text-center leading-relaxed">
+              🇫🇷: À l'occasion de la sortie de Origin, on a sélectionné nos tracks Afro House préférées de cet été, clique sur le lien en dessous pour l'ajouter sur Spotify et l'écouter en courant, en mangeant en famille, sur le canapé ou ce quand tu veux en fait.
+            </p>
+          </div>
+          
           {/* Button */}
           <Button
             onClick={onClickCreatePlaylist}

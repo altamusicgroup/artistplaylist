@@ -1,6 +1,7 @@
 export function handleSpotifyLogin(artistName: string) {
     const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID
     const redirectUri = window.location.origin + "/callback"
+    console.log("Redirect URI:", redirectUri) // Debug: Check what redirect URI is being sent
     const scopes = "playlist-modify-public playlist-modify-private user-read-private user-read-email"
 
     // Use Implicit Grant Flow
