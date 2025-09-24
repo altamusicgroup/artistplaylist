@@ -153,14 +153,14 @@ export default function PlaylistCreatorClient({ params }: { params: { artist: st
           </div>
           
           {/* Text Box */}
-          <div className="max-w-md mx-auto p-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
-            <p className="text-gray-800 text-center leading-relaxed mb-4">
+          <div className="w-full max-w-sm sm:max-w-md mx-auto p-4 sm:p-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
+            <p className="text-gray-800 text-center leading-relaxed mb-4 text-sm sm:text-base">
               🇫🇷: À l'occasion de la sortie de Origin, on a sélectionné nos tracks Afro House préférées de cet été, clique sur le lien en dessous pour l'ajouter sur Spotify et l'écouter en courant, en mangeant en famille, sur le canapé ou quand tu veux en fait.
             </p>
-            <p className="text-gray-800 text-center leading-relaxed">
+            <p className="text-gray-800 text-center leading-relaxed text-sm sm:text-base">
               🇺🇸: For the release of our new album Origin, we wanted to share our favorite Afro House playlist with songs that moved us at festivals this summer. Listen to it while running, taking a shower or at anytime seriously. Click on the link below to get it.
             </p>
-            <p className="text-gray-800 text-center font-bold mt-3">
+            <p className="text-gray-800 text-center font-bold mt-3 text-sm sm:text-base">
               TRINIX
             </p>
           </div>
@@ -169,7 +169,7 @@ export default function PlaylistCreatorClient({ params }: { params: { artist: st
           <Button
             onClick={onClickCreatePlaylist}
             disabled={isLoading}
-            className="px-12 py-6 text-xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 hover:from-purple-700 hover:via-pink-600 hover:to-orange-600 text-white border-0 rounded-2xl shadow-2xl transition-all duration-300 hover:shadow-3xl hover:scale-105 backdrop-blur-sm"
+            className="w-full max-w-sm sm:max-w-none px-6 sm:px-12 py-4 sm:py-6 text-base sm:text-xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 hover:from-purple-700 hover:via-pink-600 hover:to-orange-600 text-white border-0 rounded-2xl shadow-2xl transition-all duration-300 hover:shadow-3xl hover:scale-105 backdrop-blur-sm"
           >
             {isLoading ? (
               <>
