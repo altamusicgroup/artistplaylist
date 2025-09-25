@@ -174,10 +174,10 @@ export default function PlaylistCreatorClient({ params }: { params: { artist: st
             {isLoading ? (
               <>
                 <Loader2 className="w-6 h-6 mr-3 animate-spin" />
-                Creating Your {playlistInfo.playlistName}
+                Creating Your Afro House Mix
               </>
             ) : (
-              `Click to Access your ${playlistInfo.playlistName}`
+              "Access your Trinix Afro House Mix Now"
             )}
           </Button>
           
