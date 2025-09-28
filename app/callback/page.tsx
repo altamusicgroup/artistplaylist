@@ -1,40 +1,78 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { createPlaylist } from "../playlist_creation"
 import PlaylistInfo from "../playlistInfo"
 
+// Add type declaration for window
+declare global {
+  interface Window {
+    spotifyCallbackProcessed?: boolean;
+  }
+}
+
 export default function SpotifyCallback() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [hasError, setHasError] = useState(false)
-
-
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Parse the URL fragment for tokens (Implicit Grant Flow)
-      const fragment = window.location.hash.substring(1)
-      const params = new URLSearchParams(fragment)
-      
-      const accessToken = params.get('access_token')
-      const error = params.get('error')
-      const state = params.get('state')
-
-      if (error) {
-        console.error("Spotify auth error:", error)
-        setHasError(true)
-        return
+      // Prevent multiple executions
+      if (window.spotifyCallbackProcessed) {
+        return;
       }
-
-      if (!accessToken || !state) {
-        console.error("Missing access token or state")
-        setHasError(true)
-        return
-      }
+      window.spotifyCallbackProcessed = true;
 
       try {
+        // Get parameters from URL search params (query parameters, not fragment)
+        const code = searchParams.get('code')
+        const error = searchParams.get('error')
+        const state = searchParams.get('state')
+
+        if (error) {
+          console.error("Spotify auth error:", error)
+          setHasError(true)
+          return
+        }
+
+        if (!code || !state) {
+          console.error("Missing authorization code or state")
+          setHasError(true)
+          return
+        }
+
+        // Get code verifier from session storage
+        const codeVerifier = sessionStorage.getItem('code_verifier')
+        if (!codeVerifier) {
+          throw new Error('Code verifier not found in session storage')
+        }
+
+        // Exchange code for access token using PKCE
+        const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: window.location.origin + "/callback",
+            client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID!,
+            code_verifier: codeVerifier,
+          }),
+        })
+
+        if (!tokenResponse.ok) {
+          const errorData = await tokenResponse.json()
+          console.error('Token exchange error:', errorData)
+          throw new Error(`Failed to exchange code for token: ${errorData.error_description || errorData.error}`)
+        }
+
+        const tokenData = await tokenResponse.json()
+
         // Fetch playlist_info.json
         const playlistResponse = await fetch("/playlist_info.json")
         if (!playlistResponse.ok) {
@@ -42,17 +80,24 @@ export default function SpotifyCallback() {
         }
         const playlistData = await playlistResponse.json()
 
-        // Find the playlist info corresponding to the state
+        // Find the playlist info corresponding to the state (artist name)
         const playlistInfo: PlaylistInfo = playlistData[state]
         if (!playlistInfo) {
           throw new Error("Invalid artist")
         }
-
-        // Store the token and create playlist
-        localStorage.setItem("spotify_access_token", accessToken)
         
+        // Store both access and refresh tokens
+        localStorage.setItem("spotify_access_token", tokenData.access_token)
+        if (tokenData.refresh_token) {
+          localStorage.setItem("spotify_refresh_token", tokenData.refresh_token)
+        }
+        
+        // Clean up session storage after successful token exchange
+        sessionStorage.removeItem('code_verifier')
+        sessionStorage.removeItem('artist_name')
+
         await createPlaylist(
-          accessToken,
+          tokenData.access_token,
           state,
           playlistInfo.playlistName,
           playlistInfo.playlistDescription,
@@ -60,13 +105,16 @@ export default function SpotifyCallback() {
         )
         
       } catch (error) {
-        console.error("Error creating playlist:", error)
+        console.error("Error in callback:", error)
         setHasError(true)
       }
     }
 
-    handleCallback()
-  }, [router])
+    // Only run if we have search params and haven't processed yet
+    if ((searchParams.get('code') || searchParams.get('error')) && !window.spotifyCallbackProcessed) {
+      handleCallback()
+    }
+  }, [searchParams]) // Remove router dependency
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-200 via-pink-200 to-purple-300">

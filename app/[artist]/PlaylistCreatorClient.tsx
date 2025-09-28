@@ -88,7 +88,7 @@ export default function PlaylistCreatorClient({ params }: { params: { artist: st
     const token = localStorage.getItem("spotify_access_token")
 
     if (!token) {
-      // Login to Spotify, will redirect to the /callback page
+      // Login to Spotify using PKCE flow, will redirect to the /callback page
       handleSpotifyLogin(artist)
     } else {
       try {
